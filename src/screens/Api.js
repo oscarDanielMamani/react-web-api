@@ -1,53 +1,69 @@
 
-import {Fragment, useState} from 'react';
-import Button from '@mui/material/Button';
+import {useState, useEffect} from 'react';
 import Container from '@mui/material/Container';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import BasicCard from '../components/BasicCard';
-
-//TODO: en un app real cargariamos esto de un archivo de configuracion o de variables de entorno
-var BACKEND_URL= "http://localhost:3000";
-//A: base url
-var NOTES_URL= BACKEND_URL + "/notes";
-//A: la url para obtener la lista de notas de nuestra web Api
-
-// one_note_url= notes_url + "/" + id;
+import { notasListar, notaBorrar} from '../helpers/api';
 
 function Api(){
   const [ noteList, setNoteList] = useState(null);
+  const [ toggle, setToggle] = useState(true);
+
+  useEffect( ()=>{
+    traerData();
+  }, [])
+
+  useEffect( ()=>{
+    traerData();
+  }, [toggle])
 
   async function traerData(){
-    var myHeaders = new Headers();
-    myHeaders.append("Accept", "application/json");
-    myHeaders.append("Content-Type", "application/json");
-
-    var requestOptions = {
-      method: 'GET',
-      headers: myHeaders,
-      redirect: 'follow'
-    };
-
-    
-    let result= await fetch(NOTES_URL, requestOptions);
-    let resultJson= await result.json();
+    let resultJson= await notasListar();
     console.log(resultJson)
-    setNoteList(resultJson[0])
-    
+    setNoteList(resultJson)
+  }
+
+  async function onDeleteClick(_id){
+    console.log("borrando id: " + _id);
+    let mensaje= await notaBorrar(_id)
+
+    setNoteList( noteList.filter( nota => nota._id !== _id) )
+
+    console.log("borrado exitoso id: " + JSON.stringify(mensaje));
   }
   
   return(
     <Container>
       <h1>CRUD (create, read, update, delete) basico contra server Nodejs</h1>
+      <RefreshIcon 
+        onClick={()=> setToggle(!toggle)} 
+        style={{width:"50px", height:"50px", cursor: 'pointer'}}>
+      </RefreshIcon>
      
-      {
+      {/* {
         noteList && 
         <pre>{JSON.stringify(noteList,null,2)}</pre>
+      } */}
+
+      {
+        noteList && noteList.length == 0 &&
+        <h3>No hay Notas</h3>
       }
-      <Button variant="contained" onClick={traerData}>Traer Notas</Button>
+      
 
       {
         noteList && 
-        <BasicCard titulo={noteList.title} descripcion={noteList.content} fechaCreacion={noteList.createdAt}/>
+        noteList.map( unaNota =>
+          <BasicCard 
+            key={unaNota._id} 
+            titulo={unaNota.title} 
+            descripcion={unaNota.content} 
+            fechaCreacion={unaNota.createdAt} 
+            onDeleteClick={onDeleteClick}
+            _id={unaNota._id}
+            />
+        )
       }
 
       
