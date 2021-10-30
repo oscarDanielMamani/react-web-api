@@ -5,15 +5,18 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function BasicCard(props){
-  let{titulo, descripcion, fechaCreacion, url}= props;
+  let{titulo, descripcion, fechaCreacion, url, onDeleteClick, _id}= props;
   return (
-    <Card sx={{ minWidth: 275, maxWidth: 500}}>
+    <Card sx={{ minWidth: 275, maxWidth: 500, marginBottom: 10}}>
       <CardContent>
         <Typography variant="h5" component="div">
           {titulo  || "Titulo de la nota"}
+          <DeleteIcon onClick={()=> onDeleteClick(_id)}/>
         </Typography>
+       
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
           {fechaCreacion  || "10/10/2021"} 
         </Typography>
