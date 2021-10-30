@@ -4,7 +4,8 @@ import Container from '@mui/material/Container';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import BasicCard from '../components/BasicCard';
-import { notasListar, notaBorrar} from '../helpers/api';
+import NoteForm from '../components/NoteForm';
+import { notasListar, notaBorrar, notaCrear} from '../helpers/api';
 
 function Api(){
   const [ noteList, setNoteList] = useState(null);
@@ -32,10 +33,16 @@ function Api(){
 
     console.log("borrado exitoso id: " + JSON.stringify(mensaje));
   }
+
+  async function crearNota(nuevaNota){
+    let resultado= await notaCrear(nuevaNota);
+    alert("Nueva nota creada: " + JSON.stringify(resultado))
+  }
   
   return(
     <Container>
       <h1>CRUD (create, read, update, delete) basico contra server Nodejs</h1>
+      <NoteForm crearNota={crearNota}/>
       <RefreshIcon 
         onClick={()=> setToggle(!toggle)} 
         style={{width:"50px", height:"50px", cursor: 'pointer'}}>
