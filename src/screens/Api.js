@@ -1,14 +1,25 @@
 
 import {Fragment, useState} from 'react';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+
+import BasicCard from '../components/BasicCard';
+
+//TODO: en un app real cargariamos esto de un archivo de configuracion o de variables de entorno
+var BACKEND_URL= "http://localhost:3000";
+//A: base url
+var NOTES_URL= BACKEND_URL + "/notes";
+//A: la url para obtener la lista de notas de nuestra web Api
+
+// one_note_url= notes_url + "/" + id;
 
 function Api(){
+  const [ noteList, setNoteList] = useState(null);
 
-  const [link, setLink] = useState(null);
   async function traerData(){
     var myHeaders = new Headers();
     myHeaders.append("Accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", "Bearer BQA0gjbPCvJMB4__s04VCVjqJ7ymVBOgDiAKRpHihIaJFmCCV_qmH57W1o4AJMeh0ERI91ph_n6xwIYF0j8GIIOnrqqiaUvZxVLV82BpiKQyrfXHIav3ocoYLtehkG6Ydw3gsAWfTmFyeh5bbXQypg_6voGZ0sM");
 
     var requestOptions = {
       method: 'GET',
@@ -17,24 +28,30 @@ function Api(){
     };
 
     
-    let result= await fetch("https://api.spotify.com/v1/search?q=duki&type=track%2Cartist", requestOptions);
+    let result= await fetch(NOTES_URL, requestOptions);
     let resultJson= await result.json();
     console.log(resultJson)
-    setLink(resultJson.artists.href)
+    setNoteList(resultJson[0])
     
   }
   
   return(
-    <Fragment>
-      <h1>Hola desde Api js</h1>
+    <Container>
+      <h1>CRUD (create, read, update, delete) basico contra server Nodejs</h1>
+     
       {
-      link ?
-        <a href={link}> link aca!</a>
-        :<h2>Dale click para traer el link de tu artista favorito</h2>  
-      } 
+        noteList && 
+        <pre>{JSON.stringify(noteList,null,2)}</pre>
+      }
+      <Button variant="contained" onClick={traerData}>Traer Notas</Button>
 
-      <button onClick={traerData}>Traer data</button>
-    </Fragment>
+      {
+        noteList && 
+        <BasicCard titulo={noteList.title} descripcion={noteList.content} fechaCreacion={noteList.createdAt}/>
+      }
+
+      
+    </Container>
   )
 }
 
