@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -6,6 +6,15 @@ import Button from '@mui/material/Button';
 export default function NoteForm(props) {
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
+
+  let notaEnEdicion= props.notaEnEdicion;
+
+  useEffect(()=>{
+    if(notaEnEdicion){
+      setNoteTitle(notaEnEdicion.title);
+      setNoteContent(notaEnEdicion.content);
+    }
+  },[notaEnEdicion]);
 
   function onChangeTitle( e ){
     setNoteTitle(e.target.value);
@@ -15,13 +24,21 @@ export default function NoteForm(props) {
     setNoteContent(e.target.value);
   }
 
-  function enviarNuevaNota(){
+  function onSubmitHandle(){
     let notaNueva={
       "title": noteTitle,
       "content": noteContent
     }
     console.log("vas a crear una nueva nota: " + noteTitle + "\n" + noteContent); 
-    props.crearNota(notaNueva)
+
+    setNoteTitle("");
+    setNoteContent("");
+
+    if(props.notaEnEdicion){
+      notaNueva._id= props.notaEnEdicion._id;
+      return props.onEditHandle(notaNueva);
+    }
+    props.onCreateHandle(notaNueva)
   }
   return (
     <Box
@@ -35,7 +52,7 @@ export default function NoteForm(props) {
       <TextField value={noteTitle} onChange={onChangeTitle} id="outlined-basic" label="Note Title" variant="outlined" />
       <TextField value={noteContent} onChange={onChangeContent} id="outlined-basic" label="Note Content" variant="outlined" />
 
-      <Button onClick={enviarNuevaNota} variant="contained">Enviar Nota</Button>
+      <Button onClick={onSubmitHandle} variant="contained">Enviar Nota</Button>
     </Box>
   );
 }

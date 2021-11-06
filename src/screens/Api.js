@@ -5,11 +5,13 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 import BasicCard from '../components/BasicCard';
 import NoteForm from '../components/NoteForm';
-import { notasListar, notaBorrar, notaCrear} from '../helpers/api';
+import { notasListar, notaBorrar, notaCrear, notaEditar} from '../helpers/api';
 
 function Api(){
   const [ noteList, setNoteList] = useState(null);
   const [ toggle, setToggle] = useState(true);
+
+  const [ notaEnEdicion, setnotaEnEdicion] = useState(null);//A: aca guardamos la nota que el usuario quiere editar(su _id, su titulo etc)
 
   useEffect( ()=>{
     traerData();
@@ -34,24 +36,33 @@ function Api(){
     console.log("borrado exitoso id: " + JSON.stringify(mensaje));
   }
 
-  async function crearNota(nuevaNota){
-    let resultado= await notaCrear(nuevaNota);
-    alert("Nueva nota creada: " + JSON.stringify(resultado))
+  function onEditClick(_id){
+    let notaAEditar= noteList.filter( nota => nota._id == _id )[0];
+    setnotaEnEdicion(notaAEditar);
+    console.log("vas a editar id: " + JSON.stringify(notaAEditar))
   }
-  
+
+  async function onCreateHandle(nuevaNota){
+    let notaCreada= await notaCrear(nuevaNota);
+    alert("Nueva nota creada: " + JSON.stringify(notaCreada));
+    setNoteList( notasPrev =>  [ ...notasPrev ,notaCreada])
+  }
+
+  async function onEditHandle(notaEditada){
+    console.log("vas a edita una nota : " + JSON.stringify(notaEditada));
+    let result= await notaEditar(notaEditada);
+    alert(JSON.stringify(result))
+    setnotaEnEdicion(null);
+  }
+
   return(
     <Container>
-      <h1>CRUD (create, read, update, delete) basico contra server Nodejs</h1>
-      <NoteForm crearNota={crearNota}/>
+      <h1  style={{"marginBottom": "3px","color": "red"}}>CRUD (create, read, update, delete) basico contra server Nodejs</h1>
+      <NoteForm notaEnEdicion={notaEnEdicion} onCreateHandle={onCreateHandle} onEditHandle={onEditHandle}/>
       <RefreshIcon 
         onClick={()=> setToggle(!toggle)} 
         style={{width:"50px", height:"50px", cursor: 'pointer'}}>
       </RefreshIcon>
-     
-      {/* {
-        noteList && 
-        <pre>{JSON.stringify(noteList,null,2)}</pre>
-      } */}
 
       {
         noteList && noteList.length == 0 &&
@@ -68,6 +79,7 @@ function Api(){
             descripcion={unaNota.content} 
             fechaCreacion={unaNota.createdAt} 
             onDeleteClick={onDeleteClick}
+            onEditClick={onEditClick}
             _id={unaNota._id}
             />
         )

@@ -57,10 +57,31 @@ async function notaCrear(nota){
   let resultJson= await result.json();
   return resultJson;
 }
+
+async function notaEditar(nota){
+  let id= nota._id;
+  var myHeaders = new Headers();
+  myHeaders.append("Accept", "application/json");
+  myHeaders.append("Content-Type", "application/json");
+
+  var requestOptions = {
+    method: 'PUT',
+    headers: myHeaders,
+    redirect: 'follow',
+    body: JSON.stringify(nota)
+  };
+  
+  let urlEditar= `${NOTES_URL}/${id}`;
+
+  let result= await fetch(urlEditar, requestOptions);
+  let resultJson= await result.json();
+  return resultJson;
+}
 module.exports={
   notasListar,
   notaBorrar,
-  notaCrear
+  notaCrear,
+  notaEditar
 }
 
 // notasListar
